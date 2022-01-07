@@ -1,0 +1,28 @@
+image: maven:3.3.9
+# Need this following options, to avoid any memory limit constraint in pipeline.
+options:
+  docker: true
+  size: 2x
+clone:
+  depth: full
+pipelines:
+  branches:
+    '{dev}': # or the name of your main branch
+      - step:
+          name: SonarQube Analysis
+          script:
+            - pipe: sonarsource/sonarqube-scan:1.0.0
+              variables:
+                SONAR_HOST_URL: ${SONAR_HOST_URL} # Get the value from the repository/workspace variable.
+                SONAR_TOKEN: ${SONAR_TOKEN} # Get the value from the repository/workspace variable. You shouldn't set secret in clear text here.
+          services:
+            - docker
+          # Need this following size, to avoid any memory limit constraint in pipeline.
+          size: 2x
+definitions:
+  caches:
+    sonar: ~/.sonar
+  # Need this following services, to avoid any memory limit constraint in pipeline.
+  services:
+    docker:
+      memory: 4096
